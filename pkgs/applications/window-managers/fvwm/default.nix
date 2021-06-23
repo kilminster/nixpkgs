@@ -1,37 +1,27 @@
-{ autoreconfHook, enableGestures ? false, lib, stdenv, fetchFromGitHub
-, pkg-config, cairo, fontconfig, freetype, libXft, libXcursor, libXinerama
-, libXpm, libXt, librsvg, libpng, fribidi, perl, libstroke, readline, libxslt }:
+{ gestures ? false
+, lib, stdenv, fetchurl, pkg-config
+, cairo, fontconfig, freetype, libXft, libXcursor, libXinerama
+, libXpm, libXt, librsvg, libpng, fribidi, perl
+, libstroke ? null
+}:
+
+assert gestures -> libstroke != null;
 
 stdenv.mkDerivation rec {
   pname = "fvwm";
   version = "2.6.9";
 
-  src = fetchFromGitHub {
-    owner = "fvwmorg";
-    repo = pname;
-    rev = version;
-    sha256 = "14jwckhikc9n4h93m00pzjs7xm2j0dcsyzv3q5vbcnknp6p4w5dh";
+  src = fetchurl {
+    url = "https://github.com/fvwmorg/fvwm/releases/download/${version}/${pname}-${version}.tar.gz";
+    sha256 = "1bliqcnap7vb3m2rn8wvxyfhbf35h9x34s41fl4301yhrkrlrihv";
   };
 
-  nativeBuildInputs = [ autoreconfHook pkg-config ];
+  nativeBuildInputs = [ pkg-config ];
   buildInputs = [
-    cairo
-    fontconfig
-    freetype
-    libXft
-    libXcursor
-    libXinerama
-    libXpm
-    libXt
-    librsvg
-    libpng
-    fribidi
-    perl
-    readline
-    libxslt
-  ] ++ lib.optional enableGestures libstroke;
-
-  configureFlags = [ "--enable-mandoc" "--disable-htmldoc" ];
+    cairo fontconfig freetype
+    libXft libXcursor libXinerama libXpm libXt
+    librsvg libpng fribidi perl
+  ] ++ lib.optional gestures libstroke;
 
   meta = {
     homepage = "http://fvwm.org";
